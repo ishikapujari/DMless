@@ -6,7 +6,7 @@
 
 ## 🚀 Live Demo
 
-> _Coming soon — deploy link will go here after Vercel deployment_
+https://dmless-hazel.vercel.app/
 
 **Demo Recruiter Account:**
 - Email: `demo@dmless.io`
