@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply – DMless</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/candidate.css" />
+</head>
+<body class="candidate-page">
+
+  <!-- Subtle background -->
+  <div class="candidate-bg">
+    <div class="candidate-glow-1"></div>
+    <div class="candidate-glow-2"></div>
+  </div>
+
+  <!-- ============================================================
+       MAIN WRAPPER – all views appear here
+       JavaScript shows/hides them as the candidate progresses
+       ============================================================ -->
+  <div class="candidate-wrapper">
+
+    <!-- ===== VIEW 1: Loading (while we fetch the job data) ===== -->
+    <div id="view-loading" class="candidate-view">
+      <div class="loading-spinner"></div>
+      <p>Loading your application...</p>
+    </div>
+
+    <!-- ===== VIEW 2: Error (link not found / invalid) ===== -->
+    <div id="view-error" class="candidate-view hidden">
+      <div class="result-icon">🔍</div>
+      <h2>Link Not Found</h2>
+      <p>This hiring link doesn't exist or has been removed. Please check with the recruiter.</p>
+      <a href="index.html" class="btn btn-secondary">Back to Home</a>
+    </div>
+
+    <!-- ===== VIEW 3: Welcome / Job Details ===== -->
+    <div id="view-welcome" class="candidate-view hidden">
+      <div class="candidate-header">
+        <div class="candidate-logo">
+          <span>⚡</span>DMless
+        </div>
+        <span class="badge badge-purple">Now Hiring</span>
+      </div>
+
+      <div class="job-card">
+        <h1 id="job-title" class="job-title"></h1>
+        <div class="job-meta" id="job-company-info">
+          <span>📋 5 screening questions</span>
+          <span>⏱ Takes ~3 minutes</span>
+          <span>📄 Resume required (if you pass)</span>
+        </div>
+        <div class="divider">Job Description</div>
+        <div id="job-description-text" class="job-description"></div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">📝 How this works</div>
+        <ol class="info-steps">
+          <li>Fill in your name and email</li>
+          <li>Answer 5 multiple-choice screening questions</li>
+          <li>If you pass, upload your résumé</li>
+          <li>The recruiter will reach out if you're a match</li>
+        </ol>
+      </div>
+
+      <!-- Candidate Info Form -->
+      <div class="candidate-form-card card">
+        <h3>Your Details</h3>
+        <div id="welcome-form-message"></div>
+        <div class="form-group">
+          <label for="candidate-name">Full Name *</label>
+          <input type="text" id="candidate-name" placeholder="Jane Smith" required />
+        </div>
+        <div class="form-group">
+          <label for="candidate-email">Email Address *</label>
+          <input type="email" id="candidate-email" placeholder="jane@gmail.com" required />
+        </div>
+        <button class="btn btn-primary btn-lg" style="width:100%" onclick="startQuiz()">
+          Start Application →
+        </button>
+      </div>
+
+      <div class="powered-by">Powered by <strong>DMless</strong> ⚡</div>
+    </div>
+
+    <!-- ===== VIEW 4: MCQ Quiz ===== -->
+    <div id="view-quiz" class="candidate-view hidden">
+      <div class="candidate-header">
+        <div class="candidate-logo"><span>⚡</span>DMless</div>
+        <div class="quiz-progress-wrap">
+          <span id="quiz-progress-text" class="quiz-progress-label">Question 1 of 5</span>
+          <div class="quiz-progress-bar-track">
+            <div class="quiz-progress-bar-fill" id="quiz-progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-card card">
+        <!-- Question number pill -->
+        <div class="quiz-q-num" id="quiz-q-num">Q1</div>
+        <!-- Question text -->
+        <div class="quiz-q-text" id="quiz-q-text"></div>
+        <!-- Answer options -->
+        <div class="quiz-options" id="quiz-options"></div>
+        <!-- Feedback message (after selecting) -->
+        <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+        <!-- Next button -->
+        <button class="btn btn-primary" id="quiz-next-btn" style="width:100%;margin-top:20px;display:none" onclick="nextQuestion()">
+          Next Question →
+        </button>
+      </div>
+
+      <div class="powered-by">Powered by <strong>DMless</strong> ⚡</div>
+    </div>
+
+    <!-- ===== VIEW 5: Knocked Out ===== -->
+    <div id="view-knocked-out" class="candidate-view hidden">
+      <div class="result-icon">😔</div>
+      <h2>Better luck next time!</h2>
+      <p>Your answer didn't match what we were looking for at this time.</p>
+      <p style="margin-top: 8px;">We appreciate your interest and encourage you to keep building your skills and apply for future roles.</p>
+      <div class="result-card card" style="margin-top:24px">
+        <p style="color:var(--text-muted);font-size:13px">
+          This application was automatically screened by <strong style="color:var(--text-primary)">DMless</strong>. 
+          The recruiter has been notified.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== VIEW 6: Resume Upload ===== -->
+    <div id="view-resume" class="candidate-view hidden">
+      <div class="result-icon">🎉</div>
+      <h2>You passed the screening!</h2>
+      <p>Great job! Now upload your résumé to complete your application.</p>
+
+      <div class="resume-upload-card card">
+        <div id="resume-form-message"></div>
+
+        <!-- Drag & Drop zone -->
+        <div class="upload-zone" id="upload-zone">
+          <div class="upload-zone-icon">📎</div>
+          <div class="upload-zone-text">
+            <strong>Drag & drop your résumé here</strong><br/>
+            <span>or click to browse</span>
+          </div>
+          <input type="file" id="resume-file" accept=".pdf,.doc,.docx" style="display:none" onchange="handleFileSelect()" />
+        </div>
+
+        <!-- Selected file display -->
+        <div id="file-selected" class="file-selected hidden">
+          <span class="file-icon">📄</span>
+          <span id="file-name-display"></span>
+          <button class="btn btn-secondary btn-sm" onclick="clearFile()">Remove</button>
+        </div>
+
+        <p class="upload-hint">Accepted: PDF, DOC, DOCX • Max 5MB</p>
+
+        <button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px" onclick="submitResume()">
+          Submit Application ✅
+        </button>
+      </div>
+
+      <div class="powered-by">Powered by <strong>DMless</strong> ⚡</div>
+    </div>
+
+    <!-- ===== VIEW 7: All Done! ===== -->
+    <div id="view-done" class="candidate-view hidden">
+      <div class="result-icon done-icon">✅</div>
+      <h2 id="done-heading">Application Submitted!</h2>
+      <p id="done-subtext">Thank you, <strong id="done-name" style="color:var(--text-primary)"></strong>! Your application has been received.</p>
+      <p id="done-subtext2" style="margin-top:8px">The recruiter will review your profile and résumé. If you're a strong fit, they'll reach out to you directly.</p>
+      <div class="result-card card" id="done-summary" style="margin-top:24px">
+        <!-- Summary inserted by JS -->
+      </div>
+
+      <!-- Live status notification — updated by JS -->
+      <div style="margin-top:16px;width:100%;max-width:480px;margin-left:auto;margin-right:auto;text-align:center">
+        <div id="status-notification" style="margin-bottom:12px;text-align:left">
+          <!-- Status inserted by JS -->
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="checkCandidateStatus()" style="width:100%;display:block;margin:0 auto">
+          🔄 Refresh Status
+        </button>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:13px;margin-top:16px">
+        Powered by <strong style="color:var(--text-primary)">DMless ⚡</strong> — Hire Without the Noise
+      </p>
+    </div>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/candidate.js"></script>
+</body>
+</html>

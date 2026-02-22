@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up – DMless</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-page">
+
+  <!-- Background decoration -->
+  <div class="auth-bg">
+    <div class="auth-glow"></div>
+  </div>
+
+  <div class="auth-wrapper">
+
+    <!-- Left side: Branding panel (hidden on mobile) -->
+    <div class="auth-panel hide-mobile">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">DMless</span>
+      </a>
+      <div class="auth-panel-content">
+        <h2>Start hiring smarter today.</h2>
+        <p>Create your free recruiter account in 30 seconds. No credit card needed.</p>
+        <div class="auth-panel-bullets">
+          <div class="bullet">
+            <span class="bullet-icon">🔗</span>
+            <span>Generate hiring links instantly</span>
+          </div>
+          <div class="bullet">
+            <span class="bullet-icon">🧠</span>
+            <span>Auto-screen with MCQ knockout</span>
+          </div>
+          <div class="bullet">
+            <span class="bullet-icon">📊</span>
+            <span>Real-time candidate analytics</span>
+          </div>
+          <div class="bullet">
+            <span class="bullet-icon">📄</span>
+            <span>Collect résumés from top candidates</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side: signup form -->
+    <div class="auth-form-side">
+      <div class="auth-form-container">
+
+        <!-- Logo for mobile only -->
+        <a href="index.html" class="logo hide-desktop" style="display:flex;margin-bottom:32px">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">DMless</span>
+        </a>
+
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-subtitle">Free forever. No credit card required.</p>
+
+        <!-- Error / success message area -->
+        <div id="form-message"></div>
+
+        <form id="signup-form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" placeholder="Jane Smith" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="company">Company / Agency</label>
+              <input type="text" id="company" placeholder="Acme Corp" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Work Email</label>
+            <input type="email" id="email" placeholder="jane@company.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-with-toggle">
+              <input type="password" id="password" placeholder="Min 8 characters" required autocomplete="new-password" />
+              <button type="button" class="toggle-password" onclick="togglePassword('password')">👁</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <div class="input-with-toggle">
+              <input type="password" id="confirm-password" placeholder="Repeat password" required autocomplete="new-password" />
+              <button type="button" class="toggle-password" onclick="togglePassword('confirm-password')">👁</button>
+            </div>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="terms" />
+            <label for="terms">
+              I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="submit-btn">
+            Create Free Account
+          </button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <p class="auth-switch">
+          Already have an account? <a href="login.html">Log in →</a>
+        </p>
+
+        <!-- Demo account hint -->
+        <div class="demo-hint">
+          <span>🧪</span>
+          <span>Try demo: <strong>demo@dmless.io</strong> / <strong>demo1234</strong></span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script>
+    // If already logged in, skip to dashboard
+    if (getCurrentUser()) window.location.href = 'dashboard.html';
+
+    // Toggle password visibility
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // Show a message in the form (error or success)
+    function showMessage(msg, type) {
+      const el = document.getElementById('form-message');
+      el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    }
+
+    // Handle signup form submit
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent page reload
+
+      const name    = document.getElementById('name').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const email   = document.getElementById('email').value.trim().toLowerCase();
+      const pass    = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      const terms   = document.getElementById('terms').checked;
+
+      // Basic validations
+      if (!name || !company || !email || !pass) {
+        return showMessage('Please fill in all fields.', 'error');
+      }
+      if (pass.length < 8) {
+        return showMessage('Password must be at least 8 characters.', 'error');
+      }
+      if (pass !== confirm) {
+        return showMessage('Passwords do not match.', 'error');
+      }
+      if (!terms) {
+        return showMessage('Please accept the terms of service.', 'error');
+      }
+
+      // Check if email already exists
+      const users = getData('dmless_users') || [];
+      const existing = users.find(u => u.email === email);
+      if (existing) {
+        return showMessage('An account with this email already exists. <a href="login.html">Log in</a>.', 'error');
+      }
+
+      // Create new user object and save
+      const newUser = {
+        id: generateId(),
+        name,
+        company,
+        email,
+        password: pass,  // NOTE: In real apps, NEVER store plain passwords. Use bcrypt etc.
+        createdAt: new Date().toISOString()
+      };
+
+      users.push(newUser);
+      saveData('dmless_users', users);
+
+      // Log them in immediately
+      saveData('dmless_current_user', newUser);
+
+      showMessage('Account created! Redirecting to your dashboard...', 'success');
+
+      // Go to dashboard after short delay
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+    });
+  </script>
+</body>
+</html>

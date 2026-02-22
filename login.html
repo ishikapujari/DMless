@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In – DMless</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-page">
+
+  <div class="auth-bg">
+    <div class="auth-glow"></div>
+  </div>
+
+  <div class="auth-wrapper">
+
+    <!-- Left branding panel -->
+    <div class="auth-panel hide-mobile">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">DMless</span>
+      </a>
+      <div class="auth-panel-content">
+        <h2>Welcome back, recruiter.</h2>
+        <p>Log back in to manage your hiring links, review applications, and check your analytics.</p>
+        <div class="auth-panel-bullets">
+          <div class="bullet">
+            <span class="bullet-icon">📋</span>
+            <span>View all candidate applications</span>
+          </div>
+          <div class="bullet">
+            <span class="bullet-icon">🚀</span>
+            <span>Create new hiring links</span>
+          </div>
+          <div class="bullet">
+            <span class="bullet-icon">📊</span>
+            <span>Track knockout and shortlist stats</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login form -->
+    <div class="auth-form-side">
+      <div class="auth-form-container">
+
+        <a href="index.html" class="logo hide-desktop" style="display:flex;margin-bottom:32px">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">DMless</span>
+        </a>
+
+        <h1 class="auth-title">Log in</h1>
+        <p class="auth-subtitle">Enter your recruiter credentials below.</p>
+
+        <div id="form-message"></div>
+
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="jane@company.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <label for="password">
+              Password
+              <a href="#" style="float:right;font-size:12px;color:var(--primary)">Forgot password?</a>
+            </label>
+            <div class="input-with-toggle">
+              <input type="password" id="password" placeholder="Your password" required autocomplete="current-password" />
+              <button type="button" class="toggle-password" onclick="togglePassword('password')">👁</button>
+            </div>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="remember" checked />
+            <label for="remember">Keep me logged in</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;" id="submit-btn">
+            Log In
+          </button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <p class="auth-switch">
+          Don't have an account? <a href="signup.html">Sign up free →</a>
+        </p>
+
+        <!-- Demo hint -->
+        <div class="demo-hint">
+          <span>🧪</span>
+          <div>
+            <span>Try demo account:</span><br/>
+            <strong>demo@dmless.io</strong> / <strong>demo1234</strong>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script>
+    if (getCurrentUser()) window.location.href = 'dashboard.html';
+
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function showMessage(msg, type) {
+      document.getElementById('form-message').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    }
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const pass  = document.getElementById('password').value;
+
+      if (!email || !pass) {
+        return showMessage('Please enter your email and password.', 'error');
+      }
+
+      // Find user in our "database" (localStorage)
+      const users = getData('dmless_users') || [];
+      const user = users.find(u => u.email === email && u.password === pass);
+
+      if (!user) {
+        return showMessage('Invalid email or password. Try demo@dmless.io / demo1234', 'error');
+      }
+
+      // Save current user (log them in)
+      saveData('dmless_current_user', user);
+      showMessage('Welcome back! Redirecting...', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 800);
+    });
+  </script>
+</body>
+</html>
